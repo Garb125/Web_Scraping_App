@@ -23,7 +23,7 @@ testWB.create_sheet(datestamp,0)
 sheets = testWB.sheetnames
 bankSheet = testWB.active
 ## for the compare
-lastSheet = testWB[sheets[1]]
+lastSheet = testWB[sheets[1]] #testWB[sheets[-2]]
 
 def texasfcb():
     
