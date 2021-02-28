@@ -1,5 +1,6 @@
 import openpyxl
 from openpyxl import Workbook
+from openpyxl.styles import PatternFill
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
@@ -13,17 +14,21 @@ datestamp = f"{month}_{day}_{year}"
 #print(f"{month}_{day}_{year}")
 
 ## Selenium ##
-browser = webdriver.Chrome()
+browser = webdriver.Chrome("C:\\Users\\gnjg1\\chromedriver.exe")
 
 ## Openpyxl ##
 
 wkbk = Workbook()
 testWB = openpyxl.load_workbook("Test2.xlsx")
-testWB.create_sheet(datestamp,0)
-sheets = testWB.sheetnames
-bankSheet = testWB.active
+sheets = testWB.worksheets
+bankSheet = testWB.copy_worksheet(sheets[0])
+bankSheet.title = datestamp
+testWB.active = bankSheet
+#bankSheet = testWB.active
+
 ## for the compare
-lastSheet = testWB[sheets[1]] #testWB[sheets[-2]]
+#lastSheet = testWB[sheets[1]] 
+lastSheet = testWB.worksheets[-2]
 
 def texasfcb():
     
@@ -63,7 +68,8 @@ def texasfcb():
             bankSheet["M"+ str(5+i)] = datestamp
 
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet['K3'] = str(setCompare)       
+    bankSheet[f"K{5 + len(name)}"] = str(setCompare) 
+    bankSheet[f"K{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")      
     testWB.save("Test2.xlsx")
     return leadership
 
@@ -102,7 +108,8 @@ def cobank():
             bankSheet["D"+ str(5+i)] = datestamp
             
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet['B3'] = str(setCompare)
+    bankSheet[f"B{5 + len(name)}"] = str(setCompare) 
+    bankSheet[f"B{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
     testWB.save("Test2.xlsx")
     return leadership, setCompare
 
@@ -140,7 +147,8 @@ def agfirst():
             bankSheet["G"+ str(5+i)] = datestamp        
 
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet['E3'] = str(setCompare)
+    bankSheet[f"E{5 + len(name)}"] = str(setCompare) 
+    bankSheet[f"E{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
     testWB.save("Test2.xlsx")
     return leadership, setCompare
 
@@ -181,7 +189,8 @@ def agribank():
             bankSheet["J"+ str(5+i)] = datestamp
 
     setCompare = prevLeadership.symmetric_difference(name)
-    bankSheet['H3'] = str(setCompare)       
+    bankSheet[f"H{5 + len(name)}"] = str(setCompare) 
+    bankSheet[f"H{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")       
     testWB.save("Test2.xlsx")
     return leadership, setCompare
 
