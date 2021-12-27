@@ -14,21 +14,25 @@ datestamp = f"{month}_{day}_{year}"
 #print(f"{month}_{day}_{year}")
 
 ## Selenium ##
-browser = webdriver.Chrome("C:\\Users\\gnjg1\\chromedriver.exe")
+#browser = webdriver.Chrome("C:\\Users\\gnjg1\\chromedriver.exe")
+browser = webdriver.Chrome()
 
 ## Openpyxl ##
 
 wkbk = Workbook()
-testWB = openpyxl.load_workbook("Test2.xlsx")
+#testWB = openpyxl.load_workbook("Test2.xlsx")
+testWB = openpyxl.load_workbook(filename = "FCS Bank Leadership.xlsm",keep_vba = True)
 sheets = testWB.worksheets
 bankSheet = testWB.copy_worksheet(sheets[0])
 bankSheet.title = datestamp
 testWB.active = bankSheet
+bankSheet["A1"] = datestamp
+masterSheet = testWB.worksheets[1]
 #bankSheet = testWB.active
 
 ## for the compare
 #lastSheet = testWB[sheets[1]] 
-lastSheet = testWB.worksheets[-2]
+#lastSheet = testWB.worksheets[-2]
 
 def texasfcb():
     
@@ -42,9 +46,9 @@ def texasfcb():
     nameList = []
     prevLeadership = set()
 
-    for x in range(5,20):
-        while lastSheet[f"K{str(x)}"].value != None:
-            prevLeadership.add(lastSheet[f"K{str(x)}"].value)
+    for x in range(3,20):
+        while masterSheet[f"H{str(x)}"].value != None:
+            prevLeadership.add(masterSheet[f"H{str(x)}"].value)
             break
 
     for item in csuite:
@@ -68,32 +72,43 @@ def texasfcb():
             bankSheet["M"+ str(5+i)] = datestamp
 
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet[f"K{5 + len(name)}"] = str(setCompare) 
-    bankSheet[f"K{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")      
-    testWB.save("Test2.xlsx")
+    
+    if len(setCompare) > 0:
+        bankSheet[f"K{5 + len(name)}"] = str(setCompare)
+        bankSheet[f"K{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")      
+        
+        for x in range(2,20):
+            while masterSheet[f"H{str(x)}"].value != None:
+                masterSheet[f"H{str(x)}"].value = None
+                break
+        for i in range(0,len(name)):
+            masterSheet["H"+ str(3+i)] = name[i].text
+        
+        masterSheet["H1"]  = datestamp
+        masterSheet["H1"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+    testWB.save("FCS Bank Leadership.xlsm")
     return leadership
 
-## need a better way to get clickable tab
 def cobank():
     
-    browser.get("https://www.cobank.com/corporate")
-    tab = browser.find_elements_by_tag_name("a")
-    tab[99].click()    
+    browser.get("https://www.cobank.com/web/cobank/corporate/management-executive-committee")
+    #tab = browser.find_elements_by_tag_name("a")
+    #tab[99].click()
+    #time.sleep(10)
 
-    time.sleep(10)
+    csuite = browser.find_element_by_id("fragment-0-olfa")
 
-    csuite = browser.find_element_by_id("item-2")
-
-    title = csuite.find_elements_by_tag_name("span")
-    name = csuite.find_elements_by_tag_name("p")
+    title = csuite.find_elements_by_tag_name("p.card-text")
+    name = csuite.find_elements_by_tag_name("h5.card-title")
 
     leadership = {}
     nameList = []
     prevLeadership = set()
 
-    for x in range(5,20):
-        while lastSheet[f"B{str(x)}"].value != None:
-            prevLeadership.add(lastSheet[f"B{str(x)}"].value)
+    for x in range(3,20):
+        while masterSheet[f"B{str(x)}"].value != None:
+            prevLeadership.add(masterSheet[f"B{str(x)}"].value)
             break
 
     if len(name) == len(title):
@@ -108,9 +123,22 @@ def cobank():
             bankSheet["D"+ str(5+i)] = datestamp
             
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet[f"B{5 + len(name)}"] = str(setCompare) 
-    bankSheet[f"B{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
-    testWB.save("Test2.xlsx")
+
+    if len(setCompare) > 0:
+        bankSheet[f"B{5 + len(name)}"] = str(setCompare) 
+        bankSheet[f"B{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+        for x in range(3,20):
+            while masterSheet[f"B{str(x)}"].value != None:
+                masterSheet[f"B{str(x)}"].value = None
+                break
+        for i in range(0,len(name)):
+            masterSheet["B"+ str(3+i)] = name[i].text
+
+        masterSheet["B1"]  = datestamp
+        masterSheet["B1"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+    testWB.save("FCS Bank Leadership.xlsm")
     return leadership, setCompare
 
 def agfirst():
@@ -130,9 +158,9 @@ def agfirst():
     #    nm_item = item.text        
     #    nameList.append(nm_item)    
 
-    for x in range(5,20):
-        while lastSheet[f"E{str(x)}"].value != None:
-            prevLeadership.add(lastSheet[f"E{str(x)}"].value)
+    for x in range(3,20):
+        while masterSheet[f"D{str(x)}"].value != None:
+            prevLeadership.add(masterSheet[f"D{str(x)}"].value)
             break
 
     if len(name) == len(title):
@@ -147,14 +175,29 @@ def agfirst():
             bankSheet["G"+ str(5+i)] = datestamp        
 
     setCompare = prevLeadership.symmetric_difference(nameList)
-    bankSheet[f"E{5 + len(name)}"] = str(setCompare) 
-    bankSheet[f"E{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
-    testWB.save("Test2.xlsx")
+
+    if len(setCompare) > 0:
+        bankSheet[f"E{5 + len(name)}"] = str(setCompare) 
+        bankSheet[f"E{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+        for x in range(3,20):
+            while masterSheet[f"D{str(x)}"].value != None:
+                masterSheet[f"D{str(x)}"].value = None
+                break
+
+        for i in range(0,len(name)):
+            masterSheet["D"+ str(3+i)] = name[i].text
+
+        masterSheet["D1"]  = datestamp
+        masterSheet["D1"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+    testWB.save("FCS Bank Leadership.xlsm")
     return leadership, setCompare
 
 def agribank():
     
     browser.get("https://info.agribank.com/about/Pages/Executive-Officers.aspx")    
+    time.sleep(3)
 
     csuite = browser.find_elements_by_tag_name("h6")
 
@@ -164,9 +207,9 @@ def agribank():
     ## Compare
     prevLeadership = set()
 
-    for x in range(5,20):
-        while lastSheet[f"H{str(x)}"].value != None:
-            prevLeadership.add(lastSheet[f"H{str(x)}"].value)
+    for x in range(3,20):
+        while masterSheet[f"F{str(x)}"].value != None:
+            prevLeadership.add(masterSheet[f"F{str(x)}"].value)
             break    
 
     for item in csuite:
@@ -189,10 +232,30 @@ def agribank():
             bankSheet["J"+ str(5+i)] = datestamp
 
     setCompare = prevLeadership.symmetric_difference(name)
-    bankSheet[f"H{5 + len(name)}"] = str(setCompare) 
-    bankSheet[f"H{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")       
-    testWB.save("Test2.xlsx")
+
+    if len(setCompare) > 0:
+        bankSheet[f"H{5 + len(name)}"] = str(setCompare) 
+        bankSheet[f"H{5 + len(name)}"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+        for x in range(3,20):
+            while masterSheet[f"F{str(x)}"].value != None:
+                masterSheet[f"F{str(x)}"].value = None
+                break
+
+        for i in range(0,len(name)):
+            masterSheet["F"+ str(3+i)] = name[i]
+
+        masterSheet["F1"]  = datestamp
+        masterSheet["F1"].fill = PatternFill("solid", fgColor="FFA7A7")
+
+    testWB.save("FCS Bank Leadership.xlsm")
     return leadership, setCompare
+
+def callall():
+    texasfcb()
+    cobank()
+    agfirst()
+    agribank()
 
 #mainSheet.title = "Main Sheet"
 #c1 = mainSheet["A1"]
